@@ -1,0 +1,52 @@
+# Default model parameters
+
+# Main simulation parameters
+# Note: lists in `params` encode a grid of values to be simulated
+params:
+  # population class sizes
+  pop_1: 8 # aged <6 months
+  pop_2: 13 # aged 6-11 months
+  pop_3: 704 # aged 12 months to 11 years
+  pop_4: 1139 # aged 12+ years, not pregnant
+  pop_5: 13 # aged 12+ years, pregnant
+
+  # proportion initially susceptible (by population class)
+  prop_s_1: 0.3333
+  prop_s_2: 0.667
+  prop_s_3: 0.172
+  prop_s_4: 0.10
+  prop_s_5: 0.10
+
+  # vaccine efficacy
+  ve_infant: 0.84 # infant (aged 6-11 months) VE
+  ve: 0.925 # VE for 12 months or older
+  documented_vax_coverage: 0.49 # proportion of R's with vaccination records
+
+  # initial number infected (by population class)
+  i0_1: 0
+  i0_2: 0
+  i0_3: 0
+  i0_4: 0
+  i0_5: 0
+
+  # natural history and transmission parameters
+  r_0: 25 # basic reproductive number
+  latent_period: 8.0 # mean, in days
+  infectious_period: 5.0 # mean, in days
+  ascertainment_delay: 2.5 # mean, in days
+
+  # active case-finding intervention parameters
+  int_day: [2024-03-08, null] # `null` means no intervention
+  int_eff: 0.25 # proportional reduction in infectious period
+
+# Simulation history parameters
+# Note: lists of values in `history` are time series, not a grid of values
+history:
+  start_date: 2024-02-01 # start date of simulation
+  import_days: 2024-02-22 # date(s) of importation
+  vaccine_doses: [277, 276, 329] # number of vaccine doses administered
+  vaccine_days: [2024-03-08, 2024-03-09, 2024-03-10] # dates those doses are administered
+
+  # no. of days from administration of vaccine to onset of immunity
+  # (must be a scalar)
+  immunity_onset_delay: 7

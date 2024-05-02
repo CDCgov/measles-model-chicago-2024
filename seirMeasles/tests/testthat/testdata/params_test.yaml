@@ -1,0 +1,49 @@
+# lists in params represent a grid of values
+params:
+  # population sizes
+  pop_1: 8 # kids under 6 months
+  pop_2: 13 # kids 6-12 months
+  pop_3: 704 # 12 mo - 12 years
+  pop_4: 1139 # non-pregnant, over 12 years
+  pop_5: 13 # pregnant women not vaccinated
+
+  # proportion initially susceptible
+  prop_s_1: 0.3333
+  prop_s_2: 0.667
+  prop_s_3: 0.172
+  prop_s_4: 0.10
+  prop_s_5: 0.10
+
+  # vaccine efficacy
+  ve_infant: 0.84
+  ve: 0.925
+  documented_vax_coverage: 0.3
+
+  # initial number infected
+  i0_1: 0
+  i0_2: 0
+  i0_3: 0
+  i0_4: 0
+  i0_5: 0
+
+  # natural history and transmission parameters
+  r_0: 30
+  latent_period: 8.0 # mean, in days
+  infectious_period: 5.0 # mean, in days
+  ascertainment_delay: 2.5 # mean, in days
+
+  # intervention parameters
+  int_day: [2024-03-11, null] # day 40 & infinite
+  int_eff: 0.2
+
+# simulation history parameters
+# lists of values here are a timeseries, not a grid of values
+history:
+  start_date: 2024-02-01
+  import_days: 2024-02-22
+  vaccine_doses: [277, 276, 343]
+  vaccine_days: [2024-03-08, 2024-03-09, 2024-03-10]
+
+  # no. of days from administration of vaccine to onset of immunity
+  # this must be a scalar, because of the way inputs work
+  immunity_onset_delay: 7

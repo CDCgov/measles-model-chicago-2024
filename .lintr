@@ -1,2 +1,4 @@
-linters: linters_with_defaults(object_usage_linter = NULL)
+linters: linters_with_defaults(
+    object_usage_linter = NULL,
+    object_name_linter(styles = c("snake_case", "UPPERCASE")))
 encoding: "UTF-8"
