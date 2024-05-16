@@ -15,7 +15,3 @@ Named list of parameter values
 \description{
 Sample the prior distributions
 }
-\details{
-r0 ~ pert(min = 10, mode = 20, max = 60, shape = 5)
-int_eff ~ pert(min = 0, mode = .2, max = .8, shape = 5)
-}
