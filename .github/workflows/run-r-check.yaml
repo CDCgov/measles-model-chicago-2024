@@ -9,10 +9,6 @@ jobs:
   check-r-package:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        r_package: [chainsR, seirMeasles]
-
     env:
       RENV_ACTIVATE_PROJECT: false
 
@@ -23,9 +19,9 @@ jobs:
         r-version: 'renv' # use lockfile version
     - uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        working-directory: ${{ matrix.r_package }}
+        working-directory: seirMeasles
         extra-packages: any::rcmdcheck
         needs: check
     - uses: r-lib/actions/check-r-package@v2
       with:
-        working-directory: ${{ matrix.r_package }}
+        working-directory: seirMeasles
