@@ -297,7 +297,8 @@ simulate <- function(
     dplyr::slice(dplyr::n()) |>
     ungroup()
 
-  # interpolate each thing
+  # interpolate each compartment over time -- the SSA loops produce one
+  # row per leap, but we want an output that is one row per day
   t_out <- 0:sim_length
   output_names <- setdiff(names(output_df), "day")
   interp <- purrr::map(
@@ -317,8 +318,8 @@ simulate <- function(
     dplyr::as_tibble() |>
     mutate(day = t_out)
 
-  # add parameters -- this isn't an efficient way to do this, but it's
-  # also not efficient to be tracking parameters for each line
+  # add parameters -- the output is a single matrix. rows are time, columns are
+  # compartment counts and also parameter values. add the parameter columns here
   for (nm in names(params)) {
     interp[[nm]] <- params[[nm]]
   }
