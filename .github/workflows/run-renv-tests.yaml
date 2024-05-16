@@ -17,5 +17,5 @@ jobs:
     - uses: r-lib/actions/setup-renv@v2
     - name: Run tests in renv
       run: |
-        R -e "install.packages('testthat')"
-        R -e "testthat::test_dir('seirMeasles/tests')"
+        R -e "install.packages('devtools')"
+        R -e "devtools::test('seirMeasles')"
