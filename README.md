@@ -1,8 +1,6 @@
 # Model of 2024 Chicago measles outbreak
 
-Code to accompany Masters et al., "Real-Time Use of a Dynamic Model to  Measure the Impact of Public Health Interventions on Measles Outbreak Size and Duration — Chicago, Illinois, 2024", _MMWR_ (2024)
-
-<https://www.cdc.gov/mmwr/volumes/73/wr/mm7319a2.htm>
+Code to accompany Masters et al., "Real-Time Use of a Dynamic Model to  Measure the Impact of Public Health Interventions on Measles Outbreak Size and Duration — Chicago, Illinois, 2024", _MMWR_ (2024) (doi: [10.15585/mmwr.mm7319a2](http://dx.doi.org/10.15585/mmwr.mm7319a2))
 
 ## Repo organization
 
