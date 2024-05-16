@@ -16,4 +16,6 @@ jobs:
         r-version: 'renv' # use lockfile version
     - uses: r-lib/actions/setup-renv@v2
     - name: Run tests in renv
-      run: R -e "devtools::test('seirMeasles')"
+      run: |
+        R -e "install.packages('testthat')"
+        R -e "testthat::test_dir('seirMeasles/tests')"
