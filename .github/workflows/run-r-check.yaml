@@ -1,0 +1,27 @@
+name: Check R packages
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-r-package:
+    runs-on: ubuntu-latest
+
+    env:
+      RENV_ACTIVATE_PROJECT: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: 'renv' # use lockfile version
+    - uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        working-directory: seirMeasles
+        extra-packages: any::rcmdcheck
+        needs: check
+    - uses: r-lib/actions/check-r-package@v2
+      with:
+        working-directory: seirMeasles
