@@ -4,16 +4,10 @@
 \alias{simulate}
 \title{Run one simulation}
 \usage{
-simulate(params, manual_inputs, sim_length = 365, ssa_method = "exact", ...)
+simulate(params, ...)
 }
 \arguments{
-\item{params}{named vector of parameters}
-
-\item{manual_inputs}{tibble as returned by \code{generate_inputs()}}
-
-\item{sim_length}{duration of simulation in days (default: 365)}
-
-\item{ssa_method}{passed to \code{method} argument of \code{\link[=ssa]{ssa()}}}
+\item{params}{named list of parameters}
 
 \item{...}{additional arguments passed to \code{\link[=ssa]{ssa()}}}
 }

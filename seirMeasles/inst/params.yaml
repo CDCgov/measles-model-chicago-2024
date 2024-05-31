@@ -1,8 +1,4 @@
-# Default model parameters
-
-# Main simulation parameters
-# Note: lists in `params` encode a grid of values to be simulated
-params:
+fixed_parameters:
   # population class sizes
   pop_1: 8 # aged <6 months
   pop_2: 13 # aged 6-11 months
@@ -34,19 +30,21 @@ params:
   latent_period: 8.0 # mean, in days
   infectious_period: 5.0 # mean, in days
   ascertainment_delay: 2.5 # mean, in days
+  immunity_onset_delay: 7 # days
 
-  # active case-finding intervention parameters
-  int_day: [2024-03-08, null] # `null` means no intervention
-  int_eff: 0.25 # proportional reduction in infectious period
-
-# Simulation history parameters
-# Note: lists of values in `history` are time series, not a grid of values
-history:
   start_date: 2024-02-01 # start date of simulation
   import_days: 2024-02-22 # date(s) of importation
   vaccine_doses: [277, 276, 329] # number of vaccine doses administered
   vaccine_days: [2024-03-08, 2024-03-09, 2024-03-10] # dates those doses are administered
 
-  # no. of days from administration of vaccine to onset of immunity
-  # (must be a scalar)
-  immunity_onset_delay: 7
+  int_eff: 0.25 # proportional reduction in infectious period
+
+  sim_length: 365 # days
+  ssa_method: exact
+
+parameter_grid:
+  int_day: [2024-03-08, .na] # `null` means no intervention
+
+replicates:
+  seed: 13
+  number: 10

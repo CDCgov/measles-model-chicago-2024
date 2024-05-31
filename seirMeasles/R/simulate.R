@@ -117,28 +117,38 @@ do_vaccinations <- function(x, doses, ve, ve_infant, prop_vax_to_se) {
 
 #' Run one simulation
 #'
-#' @param params named vector of parameters
-#' @param manual_inputs tibble as returned by `generate_inputs()`
-#' @param sim_length duration of simulation in days (default: 365)
-#' @param ssa_method passed to `method` argument of [seirMeasles::ssa()]
+#' @param params named list of parameters
 #' @param ... additional arguments passed to [seirMeasles::ssa()]
 #'
 #' @return tibble
 #'
 #' @export
-simulate <- function(
+simulate <- function(params, ...) {
+  # ensure parameters are normalized
+  start_date <- lubridate::ymd(params$start_date)
+
+  params <- purrr::modify_at(
     params,
-    manual_inputs,
-    sim_length = 365,
-    ssa_method = "exact",
-    ...) {
+    c("import_days", "vaccine_days", "int_day"),
+    function(x) (lubridate::ymd(x) - start_date) / lubridate::ddays(1) + 1
+  )
+
+  stopifnot(length(params$vaccine_days) == length(params$vaccine_doses))
+
+  # generate the "manual" inputs
+  manual_inputs <- generate_inputs(
+    vaccine_doses = params$vaccine_doses,
+    vaccine_days = params$vaccine_days + params$immunity_onset_delay,
+    import_days = params$import_days
+  )
+
   # add in the "dummy" transition, to ensure simulation changes rates at time of
   # "intervention"
   stopifnot("int_day" %in% names(params))
 
-  if (!is.na(params[["int_day"]])) {
+  if (!is.na(params$int_day)) {
     dummy_transition <- dplyr::tibble(
-      day = params[["int_day"]],
+      day = params$int_day,
       doses = 0,
       imports_1 = 0,
       imports_2 = 0,
@@ -153,20 +163,20 @@ simulate <- function(
   }
 
   if (is.unsorted(manual_inputs$day)) stop("Manual inputs are not time-ordered")
-  stopifnot(max(manual_inputs$day) < sim_length)
+  stopifnot(max(manual_inputs$day) < params$sim_length)
 
   # initialize population
-  pop_1 <- params[["pop_1"]]
-  pop_2 <- params[["pop_2"]]
-  pop_3 <- params[["pop_3"]]
-  pop_4 <- params[["pop_4"]]
-  pop_5 <- params[["pop_5"]]
+  pop_1 <- params$pop_1
+  pop_2 <- params$pop_2
+  pop_3 <- params$pop_3
+  pop_4 <- params$pop_4
+  pop_5 <- params$pop_5
 
-  prop_s_1 <- params[["prop_s_1"]]
-  prop_s_2 <- params[["prop_s_2"]]
-  prop_s_3 <- params[["prop_s_3"]]
-  prop_s_4 <- params[["prop_s_4"]]
-  prop_s_5 <- params[["prop_s_5"]]
+  prop_s_1 <- params$prop_s_1
+  prop_s_2 <- params$prop_s_2
+  prop_s_3 <- params$prop_s_3
+  prop_s_4 <- params$prop_s_4
+  prop_s_5 <- params$prop_s_5
 
   s1_0 <- floor(prop_s_1 * pop_1)
   s2_0 <- floor(prop_s_2 * pop_2)
@@ -180,11 +190,11 @@ simulate <- function(
   e1_1_0 <- e1_2_0 <- e1_3_0 <- e1_4_0 <- e1_5_0 <- 0
   e2_1_0 <- e2_2_0 <- e2_3_0 <- e2_4_0 <- e2_5_0 <- 0
 
-  i1_0 <- params[["i0_1"]]
-  i2_0 <- params[["i0_2"]]
-  i3_0 <- params[["i0_3"]]
-  i4_0 <- params[["i0_4"]]
-  i5_0 <- params[["i0_5"]]
+  i1_0 <- params$i0_1
+  i2_0 <- params$i0_2
+  i3_0 <- params$i0_3
+  i4_0 <- params$i0_4
+  i5_0 <- params$i0_5
 
   r1_0 <- pop_1 - s1_0 - e1_1_0 - e2_1_0 - i1_0
   r2_0 <- pop_2 - s2_0 - sv2_0 - e1_2_0 - e2_2_0 - i2_0
@@ -214,7 +224,7 @@ simulate <- function(
   # eligible populations that were susceptible at the start of the simulation
   prop_s <- (s2_0 + s3_0 + s4_0) / (pop_2 + pop_3 + pop_4)
   # proportion of new doses that will go to S and E compartments
-  prop_vax_to_se <- prop_s / (1.0 - params[["documented_vax_coverage"]])
+  prop_vax_to_se <- prop_s / (1.0 - params$documented_vax_coverage)
 
   # assume that simulation starts from time zero and runs until the first
   # "manual" event
@@ -224,7 +234,7 @@ simulate <- function(
     function(state, t) rates(state, params, t),
     start_time = 0,
     end_time = manual_inputs$day[1],
-    method = ssa_method,
+    method = params$ssa_method,
     ...
   )
 
@@ -251,8 +261,8 @@ simulate <- function(
     x <- do_vaccinations(
       x,
       doses = manual_inputs$doses[j],
-      ve = params[["ve"]],
-      ve_infant = params[["ve_infant"]],
+      ve = params$ve,
+      ve_infant = params$ve_infant,
       prop_vax_to_se = prop_vax_to_se
     )
 
@@ -263,7 +273,7 @@ simulate <- function(
     if (j < nrow(manual_inputs)) {
       next_time <- manual_inputs$day[j + 1]
     } else if (j == nrow(manual_inputs)) {
-      next_time <- sim_length
+      next_time <- params$sim_length
     } else {
       stop("Unexpected manual input location")
     }
@@ -275,7 +285,7 @@ simulate <- function(
       function(state, t) rates(state, params, t),
       start_time = manual_inputs$day[j],
       end_time = next_time,
-      method = ssa_method,
+      method = params$ssa_method,
       ...
     )
 
@@ -299,7 +309,7 @@ simulate <- function(
 
   # interpolate each compartment over time -- the SSA loops produce one
   # row per leap, but we want an output that is one row per day
-  t_out <- 0:sim_length
+  t_out <- 0:params$sim_length
   output_names <- setdiff(names(output_df), "day")
   interp <- purrr::map(
     output_names,
@@ -318,64 +328,5 @@ simulate <- function(
     dplyr::as_tibble() |>
     mutate(day = t_out)
 
-  # add parameters -- the output is a single matrix. rows are time, columns are
-  # compartment counts and also parameter values. add the parameter columns here
-  for (nm in names(params)) {
-    interp[[nm]] <- params[[nm]]
-  }
-
   interp
-}
-
-#' Run a grid of simulations, using a config setup
-#'
-#' @param config list
-#' @param ... Additional parameters passed to [simulate_grid()]
-#'
-#' @export
-simulate_config <- function(config, ...) {
-  parameter_grid <- expand.grid(c(
-    list(sim = 1:(config$n_reps)),
-    config$params
-  ))
-
-  manual_inputs <- with(config$history, {
-    generate_inputs(
-      vaccine_doses = vaccine_doses,
-      vaccine_days = vaccine_days + immunity_onset_delay,
-      import_days = import_days
-    )
-  })
-
-  simulate_grid(
-    parameter_grid,
-    manual_inputs = manual_inputs,
-    ...
-  )
-}
-
-#' Run simulations on a grid of parameters
-#'
-#' @param parameter_grid data.frame of values. Each row is interpreted as a
-#'   named list of scalar parameters
-#' @param manual_inputs tibble of importations and vaccinations as produced
-#'   by `generate_inputs()`
-#' @param seed random number seed
-#' @param ... Additional parameters passed to [`simulate()`]
-#'
-#' @return tibble of simulation results and parameters
-#'
-#' @export
-simulate_grid <- function(
-    parameter_grid,
-    manual_inputs,
-    seed,
-    ...) {
-  furrr::future_map_dfr(
-    seq_len(nrow(parameter_grid)),
-    function(i) {
-      seirMeasles::simulate(parameter_grid[i, ], manual_inputs, ...)
-    },
-    .options = furrr::furrr_options(seed = seed)
-  )
 }
