@@ -44,7 +44,7 @@ baseline_parameters:
   vaccine_days_offset: 0
 
 grid_parameters:
-  int_day: [2024-03-08, .na] # `null` means no intervention
+  int_day: [2024-03-08, .na] # NA means no intervention
   vaccine_scenario: [baseline, delayed, early, no_vaccination]
 
 nested_parameters:
@@ -53,9 +53,9 @@ nested_parameters:
   - vaccine_scenario: early
     vaccine_days_offset: -7
   - vaccine_scenario: no_vaccination
-    vaccine_doses: .na
+    vaccine_doses: .na # NA means no vaccination
     vaccine_days: .na
 
 replicates:
   seed: 13
-  number: 1
+  number: 100
