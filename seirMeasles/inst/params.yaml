@@ -1,4 +1,4 @@
-fixed_parameters:
+baseline_parameters:
   # population class sizes
   pop_1: 8 # aged <6 months
   pop_2: 13 # aged 6-11 months
@@ -34,17 +34,28 @@ fixed_parameters:
 
   start_date: 2024-02-01 # start date of simulation
   import_days: 2024-02-22 # date(s) of importation
-  vaccine_doses: [277, 276, 329] # number of vaccine doses administered
-  vaccine_days: [2024-03-08, 2024-03-09, 2024-03-10] # dates those doses are administered
-
   int_eff: 0.25 # proportional reduction in infectious period
 
   sim_length: 365 # days
   ssa_method: exact
 
-parameter_grid:
+  vaccine_doses: [277, 276, 329] # number of vaccine doses administered
+  vaccine_days: [2024-03-08, 2024-03-09, 2024-03-10] # dates those doses are administered
+  vaccine_days_offset: 0
+
+grid_parameters:
   int_day: [2024-03-08, .na] # `null` means no intervention
+  vaccine_scenario: [baseline, delayed, early, no_vaccination]
+
+nested_parameters:
+  - vaccine_scenario: delayed
+    vaccine_days_offset: 7
+  - vaccine_scenario: early
+    vaccine_days_offset: -7
+  - vaccine_scenario: no_vaccination
+    vaccine_doses: .na
+    vaccine_days: .na
 
 replicates:
   seed: 13
-  number: 10
+  number: 1
